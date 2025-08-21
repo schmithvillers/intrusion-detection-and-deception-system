@@ -166,53 +166,53 @@ Pre-processed log (first 100 values): [0, 31, 0, 62, 9, 0, 0, 0, 0, 0, 0, 0, 0, 
 --- Component 1: Classifier using LightGBM and K-Means ---
 Loading data...
 Number of normal traces loaded: 5205
-Number of attack traces loaded: 746
-Total number of unique system calls: 175
-Training data shape: (4760, 175)
-Test data shape: (1191, 175)
+Number of attack traces loaded: 747
+Total number of unique system calls/log messages: 178
+Training data shape: (4761, 178)
+Test data shape: (1191, 178)
 Labels in test set: (array([0., 1.]), array([1042,  149]))
-Calculated class weights: {0: np.float64(0.5717030987268796), 1: np.float64(3.986599664991625)}
+Calculated class weights: {0: np.float64(0.5718232044198895), 1: np.float64(3.980769230769231)}
 
 --- Applying K-Means for feature enrichment ---
-Final training data shape with cluster feature: (4760, 176)
+Final training data shape with cluster feature: (4761, 179)
 
 --- Hyperparameter Tuning with GridSearchCV ---
 Fitting 3 folds for each of 1296 candidates, totalling 3888 fits
-[LightGBM] [Info] Number of positive: 597, number of negative: 4163
-[LightGBM] [Info] Auto-choosing row-wise multi-threading, the overhead of testing was 0.005992 seconds.
+[LightGBM] [Info] Number of positive: 598, number of negative: 4163
+[LightGBM] [Info] Auto-choosing row-wise multi-threading, the overhead of testing was 0.005467 seconds.
 You can set `force_row_wise=true` to remove the overhead.
 And if memory is not enough, you can set `force_col_wise=true`.
 [LightGBM] [Info] Total Bins 3549
-[LightGBM] [Info] Number of data points in the train set: 4760, number of used features: 111
+[LightGBM] [Info] Number of data points in the train set: 4761, number of used features: 111
 [LightGBM] [Info] [binary:BoostFromScore]: pavg=0.500000 -> initscore=0.000000
 [LightGBM] [Info] Start training from score 0.000000
 
-Best Parameters: {'colsample_bytree': 1.0, 'learning_rate': 0.05, 'max_depth': 20, 'n_estimators': 800, 'num_leaves': 64, 'reg_alpha': 0.0, 'reg_lambda': 0.0, 'subsample': 0.8}
-Best F1 Score (CV): 0.8746028940248746
+Best Parameters: {'colsample_bytree': 1.0, 'learning_rate': 0.1, 'max_depth': 10, 'n_estimators': 800, 'num_leaves': 128, 'reg_alpha': 0.0, 'reg_lambda': 0.0, 'subsample': 0.8}
+Best F1 Score (CV): 0.8798085994810405
 
 --- Model Performance Metrics ---
 
 Default Threshold (0.5) Results:
-Accuracy:  0.9723
-Precision: 0.9028
-Recall:    0.8725
-F1-Score:  0.8874
+Accuracy:  0.9715
+Precision: 0.9078
+Recall:    0.8591
+F1-Score:  0.8828
 Confusion Matrix:
-[[1028   14]
- [  19  130]]
+[[1029   13]
+ [  21  128]]
 /usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2739: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
   warnings.warn(
 /usr/local/lib/python3.12/dist-packages/sklearn/utils/validation.py:2739: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
   warnings.warn(
 
-Best Threshold Tuning Results (threshold=0.38):
+Best Threshold Tuning Results (threshold=0.17):
 Accuracy:  0.9723
-Precision: 0.8973
-Recall:    0.8792
-F1-Score:  0.8881
+Precision: 0.8766
+Recall:    0.9060
+F1-Score:  0.8911
 Confusion Matrix:
-[[1027   15]
- [  18  131]]
+[[1023   19]
+ [  14  135]]
 
 --- Malicious Log Selected for Reinforcement Learning ---
-Pre-processed log (first 100 values): [0, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 28, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]...
+Pre-processed log (first 100 values): [0, 36, 0, 87, 21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]...
