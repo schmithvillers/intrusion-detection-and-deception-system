@@ -1,6 +1,25 @@
+Loading ADFA-LD data...
+Total samples: 5952 (Normal=5205, Attack=747)
+Training Neural Network on ADFA-LD traces...
+
+--- Model Evaluation ---
+Accuracy: 0.8724
+
+Classification Report:
+               precision    recall  f1-score   support
+
+           0       0.90      0.96      0.93      1042
+           1       0.48      0.28      0.35       149
+
+    accuracy                           0.87      1191
+   macro avg       0.69      0.62      0.64      1191
+weighted avg       0.85      0.87      0.86      1191
+
+Model and scaler saved.
+
 #LSTM Model output
 
---- Component 1: Neural Network Classifier (Updated) ---
+--- Component 1: LSTM Classifier (Updated) ---
 Loading data...
 Number of normal traces loaded: 5205
 Number of attack traces loaded: 746
