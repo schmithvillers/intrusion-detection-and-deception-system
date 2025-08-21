@@ -1,13 +1,14 @@
 # Component 1: Classifier using LightGBM, K-Means, and F1 threshold tuning with GridSearchCV
 import os
 import numpy as np
-import tensorflow as tf  # kept for pad_sequences
+import tensorflow as tf # kept for pad_sequences
 import lightgbm as lgb
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 from sklearn.utils import class_weight
 from sklearn.cluster import KMeans
 import random
+import re
 
 print("--- Component 1: Classifier using LightGBM and K-Means ---")
 
@@ -38,10 +39,61 @@ def load_traces(directory):
                         print(f"Skipping malformed file {file_path}: {e}")
     return traces
 
+# New function to load and process the provided log file
+def load_art_log(file_path, string_to_int_map, next_id):
+    traces = []
+    if not os.path.exists(file_path):
+        print(f"Warning: Log file not found: {file_path}")
+        return traces, next_id
+
+    with open(file_path, 'r', errors='ignore') as f:
+        content = f.read()
+
+    # Pre-process the content to clean up RTF artifacts
+    content = re.sub(r'\{\\\*?\\[^{}]*\}', '', content)
+    content = content.replace('\\par', '\n').replace('\\b', '').replace('\\', '')
+
+    lines = content.split('\n')
+    current_trace = []
+    for line in lines:
+        line = line.strip()
+        if line.startswith('Error reading') or line.startswith('[/var/log/vmware'):
+            # Extract the specific error or warning message
+            if 'Permission denied' in line:
+                key = 'Permission denied'
+            elif 'Couldn\'t get VMCI socket family info' in line:
+                key = 'Couldn\'t get VMCI socket family info'
+            elif 'EventToCore: Not implemented yet' in line:
+                key = 'EventToCore: Not implemented yet'
+            elif 'Failed to send RPCI message' in line:
+                key = 'Failed to send RPCI message'
+            else:
+                continue
+
+            if key not in string_to_int_map:
+                string_to_int_map[key] = next_id
+                next_id += 1
+            
+            current_trace.append(string_to_int_map[key])
+
+    if current_trace:
+        traces.append(current_trace)
+    
+    return traces, next_id
+
 print("Loading data...")
 normal_train_traces = load_traces(normal_train_dir)
 normal_val_traces = load_traces(normal_val_dir)
 attack_traces = load_traces(attack_dir)
+
+# Initialize a new vocabulary for log messages
+string_to_int_map = {}
+next_id_counter = 5000 # Use a high number to avoid collisions with ADFA-LD syscalls
+
+# Load the new log file as attack data
+art_log_path = 'art.log.rtf'
+art_log_traces, next_id_counter = load_art_log(art_log_path, string_to_int_map, next_id_counter)
+attack_traces.extend(art_log_traces)
 
 normal_traces = normal_train_traces + normal_val_traces
 print(f"Number of normal traces loaded: {len(normal_traces)}")
@@ -49,14 +101,14 @@ print(f"Number of attack traces loaded: {len(attack_traces)}")
 
 all_traces = normal_traces + attack_traces
 if not all_traces:
-    print("\nError: No data loaded. Please ensure the ADFA-LD dataset is correctly placed.")
+    print("\nError: No data loaded. Please ensure the ADFA-LD dataset and art.log.rtf are correctly placed.")
     exit()
 
 all_syscalls = [sc for trace in all_traces for sc in trace]
 syscall_vocab = sorted(list(set(all_syscalls)))
 syscall_to_int = {sc: i for i, sc in enumerate(syscall_vocab)}
 
-print(f"Total number of unique system calls: {len(syscall_vocab)}")
+print(f"Total number of unique system calls/log messages: {len(syscall_vocab)}")
 
 def traces_to_features(traces, vocab_size):
     features = np.zeros((len(traces), vocab_size), dtype=np.int32)
@@ -194,4 +246,3 @@ global trained_classifier_model, malicious_log_for_rl, kmeans_model_for_rl
 trained_classifier_model = model
 malicious_log_for_rl = selected_malicious_log
 kmeans_model_for_rl = kmeans
-
