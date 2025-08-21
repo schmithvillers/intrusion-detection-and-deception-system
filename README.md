@@ -1,3 +1,17 @@
+Model Accuracy(%) Precision(%) Recall(%) F1-Score(%)
+
+Decision Tree 91 92.41 89.19 90.77
+
+Random Forest 93.96 94.24 93.54 93.89
+
+K-Nearest Neighbors 88.11 89.53 86.09 87.78
+
+XGBoost 95.26 95.73 94.66 95.19
+
+Support Vector Machine 85.21 82.96 88.32 85.56
+-----
+neural netowrk
+
 Loading ADFA-LD data...
 Total samples: 5952 (Normal=5205, Attack=747)
 Training Neural Network on ADFA-LD traces...
