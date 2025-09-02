@@ -8,8 +8,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 from sklearn.utils import class_weight
 
-# --- 1. Data Loading and Pre-processing ---
-
 print("--- Component 1: Neural Network Classifier ---")
 
 base_dir = '/content/sample_data/ADFA-LD/ADFA-LD'
@@ -82,7 +80,6 @@ class_weights = class_weight.compute_class_weight(
 class_weights_dict = {i: weight for i, weight in enumerate(class_weights)}
 print(f"Calculated class weights: {class_weights_dict}")
 
-# --- 2. Build and Train the LSTM Model ---
 embedding_dim = 128
 lstm_units = 64
 
@@ -109,7 +106,6 @@ model.fit(
     class_weight=class_weights_dict
 )
 
-# --- 3. Evaluation ---
 print("\n--- Model Performance Metrics ---")
 loss, accuracy = model.evaluate(X_test, y_test, verbose=0)
 y_pred_proba = model.predict(X_test)
@@ -123,7 +119,6 @@ cm = confusion_matrix(y_test, y_pred)
 print("\nConfusion Matrix:")
 print(cm)
 
-# --- 4. Select and pass a malicious log to the next component ---
 malicious_indices = np.where(y_test == 1)[0]
 selected_malicious_log = None
 if len(malicious_indices) > 0:
