@@ -7,7 +7,7 @@ from tqdm import tqdm
 from datetime import datetime
 
 # --- Configuration ---
-HONEYPOT_IP = "192.168.251.150"
+HONEYPOT_IP = "192.168.251.154"
 SSH_USER = "ubuntu_server"
 SSH_PASS = "anjsudpoo"
 ART_PATH = "/home/kali/redcanaryco-atomic-red-team-dffd968/atomics/"
