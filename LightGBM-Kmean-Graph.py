@@ -12,9 +12,6 @@ import matplotlib.pyplot as plt
 
 print("--- Component: LightGBM + KMeans + Hyperparameter Visualization ---")
 
-# -----------------------------
-# 1. Data Loading
-# -----------------------------
 base_dir = '/content/ADFA-LD_unzipped/ADFA-LD'
 normal_train_dir = os.path.join(base_dir, 'Training_Data_Master')
 normal_val_dir = os.path.join(base_dir, 'Validation_Data_Master')
@@ -67,7 +64,6 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
 
-# KMeans feature enrichment
 kmeans = KMeans(n_clusters=5, random_state=42, n_init=10)
 kmeans.fit(X_train)
 X_train_clusters = kmeans.predict(X_train).reshape(-1, 1)
@@ -75,9 +71,6 @@ X_test_clusters = kmeans.predict(X_test).reshape(-1, 1)
 X_train_final = np.concatenate((X_train, X_train_clusters), axis=1)
 X_test_final = np.concatenate((X_test, X_test_clusters), axis=1)
 
-# -----------------------------
-# 2. Function to Evaluate Hyperparameters
-# -----------------------------
 def evaluate_hyperparams(hyperparams, runs=10):
     """Run multiple experiments with varying hyperparameters and return metrics."""
     results = {hp: {"accuracy": [], "precision": [], "recall": [], "f1": []} for hp in hyperparams}
@@ -112,9 +105,6 @@ def evaluate_hyperparams(hyperparams, runs=10):
     
     return results
 
-# -----------------------------
-# 3. Function to Plot Results
-# -----------------------------
 def plot_hyperparameter_effects(results, hyperparams):
     """Plot graphs of metrics vs hyperparameters."""
     for hp, metrics in results.items():
@@ -130,10 +120,6 @@ def plot_hyperparameter_effects(results, hyperparams):
         plt.legend()
         plt.grid(True)
         plt.show()
-
-# -----------------------------
-# 4. Run Experiments
-# -----------------------------
 hyperparams_to_test = {
     "num_leaves": [16, 32, 64, 128, 256],
     "max_depth": [-1, 5, 10, 20, 40],
