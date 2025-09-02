@@ -9,7 +9,7 @@ from datetime import datetime
 # --- Configuration ---
 HONEYPOT_IP = "192.168.251.154"
 SSH_USER = "ubuntu_server"
-SSH_PASS = "anjsudpoo"
+SSH_PASS = "12345678"
 ART_PATH = "/home/kali/redcanaryco-atomic-red-team-dffd968/atomics/"
 LOCAL_HONEYPOT_LOG = "/var/log/honeypot/all_honeypot_logs.log"
 LOG_TIMESTAMP_FILE = "./Logs/attack_timestamps.txt"
