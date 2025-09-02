@@ -12,10 +12,6 @@ import re
 
 print("--- Component 1: Classifier using LightGBM and K-Means ---")
 
-# -----------------------------
-# 1. Data Loading and Feature Engineering
-# -----------------------------
-
 base_dir = '/content/ADFA-LD_unzipped/ADFA-LD'
 normal_train_dir = os.path.join(base_dir, 'Training_Data_Master')
 normal_val_dir = os.path.join(base_dir, 'Validation_Data_Master')
@@ -38,8 +34,6 @@ def load_traces(directory):
                     except ValueError as e:
                         print(f"Skipping malformed file {file_path}: {e}")
     return traces
-
-# New function to load and process the provided log file
 def load_art_log(file_path, string_to_int_map, next_id):
     traces = []
     if not os.path.exists(file_path):
@@ -49,7 +43,6 @@ def load_art_log(file_path, string_to_int_map, next_id):
     with open(file_path, 'r', errors='ignore') as f:
         content = f.read()
 
-    # Pre-process the content to clean up RTF artifacts
     content = re.sub(r'\{\\\*?\\[^{}]*\}', '', content)
     content = content.replace('\\par', '\n').replace('\\b', '').replace('\\', '')
 
@@ -58,7 +51,6 @@ def load_art_log(file_path, string_to_int_map, next_id):
     for line in lines:
         line = line.strip()
         if line.startswith('Error reading') or line.startswith('[/var/log/vmware'):
-            # Extract the specific error or warning message
             if 'Permission denied' in line:
                 key = 'Permission denied'
             elif 'Couldn\'t get VMCI socket family info' in line:
@@ -86,11 +78,8 @@ normal_train_traces = load_traces(normal_train_dir)
 normal_val_traces = load_traces(normal_val_dir)
 attack_traces = load_traces(attack_dir)
 
-# Initialize a new vocabulary for log messages
 string_to_int_map = {}
-next_id_counter = 5000 # Use a high number to avoid collisions with ADFA-LD syscalls
-
-# Load the new log file as attack data
+next_id_counter = 5000
 art_log_path = 'art.log.rtf'
 art_log_traces, next_id_counter = load_art_log(art_log_path, string_to_int_map, next_id_counter)
 attack_traces.extend(art_log_traces)
@@ -135,16 +124,11 @@ print(f"Training data shape: {X_train.shape}")
 print(f"Test data shape: {X_test.shape}")
 print(f"Labels in test set: {np.unique(y_test, return_counts=True)}")
 
-# Calculate class weights
 class_weights = class_weight.compute_class_weight(
     'balanced', classes=np.unique(y_train), y=y_train
 )
 class_weights_dict = {i: weight for i, weight in enumerate(class_weights)}
 print(f"Calculated class weights: {class_weights_dict}")
-
-# -----------------------------
-# 2. K-Means Feature Enrichment
-# -----------------------------
 
 print("\n--- Applying K-Means for feature enrichment ---")
 kmeans = KMeans(n_clusters=5, random_state=42, n_init=10)
@@ -157,10 +141,6 @@ X_train_final = np.concatenate((X_train, X_train_clusters), axis=1)
 X_test_final = np.concatenate((X_test, X_test_clusters), axis=1)
 
 print(f"Final training data shape with cluster feature: {X_train_final.shape}")
-
-# -----------------------------
-# 3. LightGBM with GridSearchCV
-# -----------------------------
 
 print("\n--- Hyperparameter Tuning with GridSearchCV ---")
 param_grid = {
@@ -186,10 +166,6 @@ print("\nBest Parameters:", grid.best_params_)
 print("Best F1 Score (CV):", grid.best_score_)
 
 model = grid.best_estimator_
-
-# -----------------------------
-# 4. Evaluation with Threshold Tuning
-# -----------------------------
 
 print("\n--- Model Performance Metrics ---")
 
@@ -221,10 +197,6 @@ print(f"Recall:    {recall_score(y_test, y_pred_best, zero_division=0):.4f}")
 print(f"F1-Score:  {f1_score(y_test, y_pred_best, zero_division=0):.4f}")
 print("Confusion Matrix:")
 print(confusion_matrix(y_test, y_pred_best))
-
-# -----------------------------
-# 5. Select Malicious Log
-# -----------------------------
 
 malicious_indices = np.where(y_test == 1)[0]
 selected_malicious_log = None
