@@ -14,7 +14,7 @@ try:
         raise ValueError("One or more required components are not available.")
 except (NameError, ValueError) as e:
     print(f"Warning: Could not access classifier model or malicious log from Component 1. {e}. Using placeholders.")
-
+    
 if selected_malicious_log is None or not hasattr(trained_classifier_model, 'predict_proba') or not hasattr(kmeans_model, 'predict'):
     print("Cannot run without a malicious log and models. Exiting.")
     sys.exit()
@@ -308,23 +308,3 @@ plt.show()
 # Average Test Metrics Plot
 test_rewards = [res['test_reward'] for res in kfold_results]
 test_malicious_rates = [res['test_malicious_rate'] for res in kfold_results]
-
-plt.figure(figsize=(12, 7))
-plt.bar(range(1, len(test_rewards) + 1), test_rewards, label='Average Test Reward', color='blue')
-plt.title('Average Test Reward per Fold')
-plt.xlabel('Fold')
-plt.ylabel('Average Reward')
-plt.xticks(range(1, len(test_rewards) + 1))
-plt.legend()
-plt.grid(axis='y')
-plt.show()
-
-plt.figure(figsize=(12, 7))
-plt.bar(range(1, len(test_malicious_rates) + 1), test_malicious_rates, label='Average Test Malicious Rate', color='red')
-plt.title('Average Malicious Detections Rate per Fold')
-plt.xlabel('Fold')
-plt.ylabel('Malicious Rate')
-plt.xticks(range(1, len(test_malicious_rates) + 1))
-plt.legend()
-plt.grid(axis='y')
-plt.show()
