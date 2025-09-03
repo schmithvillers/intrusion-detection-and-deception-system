@@ -1,5 +1,4 @@
-# --- Component 2: Advanced Reinforcement Learning Model with Comprehensive Features ---
-
+# --- Component 2: Advanced Reinforcement Learning Model with Comprehensive Features --- 
 import numpy as np
 import random
 import sys
@@ -11,20 +10,16 @@ try:
     trained_classifier_model = trained_classifier_model
     selected_malicious_log = malicious_log_for_rl
     kmeans_model = kmeans_model_for_rl
-
     if selected_malicious_log is None or not hasattr(trained_classifier_model, 'predict_proba') or not hasattr(kmeans_model, 'predict'):
         raise ValueError("One or more required components are not available.")
-
 except (NameError, ValueError) as e:
     print(f"Warning: Could not access classifier model or malicious log from Component 1. {e}. Using placeholders.")
-
     class DummyKMeans:
         def __init__(self, n_features_in=175):
             self.n_features_in_ = n_features_in
         def predict(self, x):
             means = np.mean(x, axis=1)
             return (means > 40).astype(int)
-
     class DummyClassifier:
         def __init__(self, n_features_in=176):
             self.n_features_in_ = n_features_in
@@ -33,15 +28,12 @@ except (NameError, ValueError) as e:
             if mean_val > 50:
                 return np.array([[0.1, 0.9]])
             return np.array([[0.8, 0.2]])
-
     kmeans_model = DummyKMeans()
     trained_classifier_model = DummyClassifier()
     selected_malicious_log = np.random.randint(0, 150, size=175)
-
 if selected_malicious_log is None or not hasattr(trained_classifier_model, 'predict_proba') or not hasattr(kmeans_model, 'predict'):
     print("Cannot run without a malicious log and models. Exiting.")
     sys.exit()
-
 try:
     N_FEATURES_LOG = kmeans_model.n_features_in_
     N_FEATURES_CLASSIFIER = trained_classifier_model.n_features_in_
@@ -49,16 +41,13 @@ except AttributeError:
     print("Warning: Models do not have n_features_in_. Using fallback values.")
     N_FEATURES_LOG = selected_malicious_log.shape[0]
     N_FEATURES_CLASSIFIER = N_FEATURES_LOG + 1
-
 print("--- Component 2: Advanced Reinforcement Learning Model ---")
-
 def pad_log_to_features(log, target_features):
     """Pads a log array with zeros to match a target feature size."""
     if log.shape[0] < target_features:
         padding = target_features - log.shape[0]
         return np.pad(log, (0, padding), 'constant')
-    return log[:target_features] 
-
+    return log[:target_features]
 class AdvancedLinuxEnvironment:
     def __init__(self, initial_log, classifier, kmeans_model):
         self.classifier = classifier
@@ -67,32 +56,27 @@ class AdvancedLinuxEnvironment:
         self.state = self._get_state()
         self.deception_active = False
         self.is_malicious = True
-
     def _get_state(self):
         padded_log = pad_log_to_features(self.log.copy(), N_FEATURES_LOG)
         log_reshaped = padded_log.reshape(1, -1)
         cluster_prediction = self.kmeans_model.predict(log_reshaped)[0]
         mean_val = np.mean(self.log)
-
         if mean_val > 80:
             return f"high_activity_cluster_{cluster_prediction}"
         elif mean_val > 30:
             return f"medium_activity_cluster_{cluster_prediction}"
         else:
             return f"low_activity_cluster_{cluster_prediction}"
-
     def reset(self, initial_log):
         self.log = pad_log_to_features(initial_log.copy(), N_FEATURES_LOG)
         self.state = self._get_state()
         self.deception_active = False
         self.is_malicious = True
         return self.state
-
     def step(self, action_script):
         new_log = self.log.copy()
         action_reward = 0
         done = False
-
         if "rm" in action_script:
             new_log = np.zeros_like(new_log)
             action_reward = 150
@@ -137,32 +121,25 @@ class AdvancedLinuxEnvironment:
         else:
             action_reward = -100
             self.deception_active = False
-
         new_log = pad_log_to_features(new_log, N_FEATURES_LOG)
         log_reshaped = new_log.reshape(1, -1)
         cluster_prediction = self.kmeans_model.predict(log_reshaped)
         log_with_cluster = np.concatenate((log_reshaped, cluster_prediction.reshape(-1, 1)), axis=1)
         log_with_cluster = pad_log_to_features(log_with_cluster[0], N_FEATURES_CLASSIFIER).reshape(1, -1)
-
         classification_proba = self.classifier.predict_proba(log_with_cluster)[0, 1]
         self.is_malicious = (classification_proba > 0.5)
-
         if not self.is_malicious:
             classification_reward = 50
         else:
             classification_reward = -50
-
         total_reward = action_reward + classification_reward
-
         self.log = new_log
         new_state = self._get_state()
         return new_state, total_reward, done
-
 class AdvancedNLPAgent:
     def __init__(self, actions):
         self.q_table = defaultdict(lambda: np.zeros(len(actions)))
         self.actions = actions
-
     def choose_action(self, state, exploration_rate, policy_type="epsilon-greedy"):
         if policy_type == "epsilon-greedy":
             if random.random() < exploration_rate:
@@ -176,14 +153,10 @@ class AdvancedNLPAgent:
             return np.random.choice(range(len(self.actions)), p=probabilities)
         else:
             raise ValueError("Invalid policy_type. Must be 'epsilon-greedy' or 'softmax'.")
-
-
     def update_policy(self, state, action_idx, reward, next_state, alpha, gamma):
         old_value = self.q_table[state][action_idx]
         next_max = np.max(self.q_table[next_state])
         self.q_table[state][action_idx] = old_value + alpha * (reward + gamma * next_max - old_value)
-
-
 ACTION_SCRIPTS = [
     # --- Corrective Actions (50 scripts) ---
     "chown root:root /etc/shadow", "chmod 600 /etc/ssh/sshd_config", "rm -f /tmp/malicious.sh",
@@ -209,7 +182,6 @@ ACTION_SCRIPTS = [
     "find /var/www -name '*.php' -type f -exec grep -l -E 'eval\\(|base64_decode' {} \\;",
     "grep -r 'suspicious_ip' /var/log/apache2/", "find / -type f -name '.*' -ls",
     "ip route del 10.0.0.0/8", "iptables -A INPUT -s 1.2.3.4 -j DROP",
-
     # --- Deceptive Actions (50 scripts) ---
     "deceive_ports", "deceive_fs", "deceive_service", "echo 'System clean' > /var/log/fake_scan.log",
     "deceive_process_list", "deceive_network_traffic", "deceive_user_accounts", "deceive_file_permissions",
@@ -236,75 +208,90 @@ ACTION_SCRIPTS = [
     "echo 'ServerSignature Off' >> /etc/apache2/conf-available/security.conf", "echo 'ServerTokens Prod' >> /etc/apache2/conf-available/security.conf",
     "echo 'X-XSS-Protection \"1; mode=block\"' >> /etc/apache2/conf-available/security.conf",
 ]
-
-
 def run_kfold_validation(n_splits=5):
     """
-    Performs K-Fold Cross-Validation on a simulated dataset of malicious logs.
+    Performs K-Fold Cross-Validation on the action scripts.
+    The agent is trained on a subset of actions and tested on a held-out set.
     """
-    print(f"\n--- Starting {n_splits}-Fold Cross-Validation ---")
-
-    log_dataset = [
-        np.random.randint(100, 200, size=N_FEATURES_LOG) for _ in range(25)
-    ] + [
-        np.random.randint(50, 150, size=N_FEATURES_LOG) for _ in range(25)
-    ] + [
-        np.random.randint(10, 100, size=N_FEATURES_LOG) for _ in range(25)
-    ]
-    random.shuffle(log_dataset)
-
+    print(f"\n--- Starting {n_splits}-Fold Cross-Validation on Action Scripts ---")
     kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
     fold_results = []
+    
+    # Create a dummy log dataset for the environment to reset to, since the focus is on action scripts
+    log_dataset = [np.random.randint(50, 150, size=N_FEATURES_LOG) for _ in range(50)]
 
-    for i, (train_index, test_index) in enumerate(kf.split(log_dataset)):
+    for i, (train_index, test_index) in enumerate(kf.split(ACTION_SCRIPTS)):
         print(f"\n--- Fold {i+1}/{n_splits} ---")
-
-        agent = AdvancedNLPAgent(ACTION_SCRIPTS)
+        
+        # Split actions for this fold
+        train_actions = [ACTION_SCRIPTS[j] for j in train_index]
+        test_actions = [ACTION_SCRIPTS[j] for j in test_index]
+        
+        # Train the agent on the training set of actions
+        agent = AdvancedNLPAgent(train_actions)
         env = AdvancedLinuxEnvironment(selected_malicious_log, trained_classifier_model, kmeans_model)
-
+        
         EPISODES = 50
         ALPHA = 0.1
         GAMMA = 0.9
         EPSILON = 0.2
         POLICY_TYPE = "epsilon-greedy"
-
-        episode_rewards = []
-        episode_malicious_flags = []
-
+        
+        train_rewards = []
+        train_malicious_flags = []
+        
         for episode in range(EPISODES):
-            initial_log = log_dataset[random.choice(train_index)]
+            initial_log = random.choice(log_dataset)
             state = env.reset(initial_log)
             done = False
             total_reward = 0
             malicious_count = 0
-
+            
             while not done:
                 action_idx = agent.choose_action(state, EPSILON, policy_type=POLICY_TYPE)
-                next_state, reward, done = env.step(ACTION_SCRIPTS[action_idx])
+                next_state, reward, done = env.step(train_actions[action_idx])
                 agent.update_policy(state, action_idx, reward, next_state, ALPHA, GAMMA)
                 state = next_state
                 total_reward += reward
                 if env.is_malicious:
                     malicious_count += 1
-
-            episode_rewards.append(total_reward)
-            episode_malicious_flags.append(malicious_count)
-
+            train_rewards.append(total_reward)
+            train_malicious_flags.append(malicious_count)
+            
+        # Evaluate the trained agent on the test set of actions
+        test_rewards = []
+        test_malicious_flags = []
+        
+        for action_script in test_actions:
+            initial_log = random.choice(log_dataset)
+            state = env.reset(initial_log)
+            next_state, reward, done = env.step(action_script)
+            test_rewards.append(reward)
+            test_malicious_flags.append(1 if env.is_malicious else 0)
+            
+        avg_test_reward = np.mean(test_rewards)
+        avg_test_malicious_rate = np.mean(test_malicious_flags)
+        
+        print(f"  Fold {i+1} Training Complete. Average Test Reward: {avg_test_reward:.2f}, Malicious Rate: {avg_test_malicious_rate:.2f}")
+        
         fold_results.append({
-            'rewards': episode_rewards,
-            'malicious_flags': episode_malicious_flags,
-            'q_table': agent.q_table
+            'train_rewards': train_rewards,
+            'train_malicious_flags': train_malicious_flags,
+            'test_reward': avg_test_reward,
+            'test_malicious_rate': avg_test_malicious_rate,
+            'q_table': agent.q_table,
+            'actions': train_actions # Store the actions used for this fold
         })
-
     return fold_results
 
 kfold_results = run_kfold_validation(n_splits=5)
-
 print("\n--- Final Q-Table (from the last fold) ---")
-final_q_table = kfold_results[-1]['q_table']
+last_fold_results = kfold_results[-1]
+final_q_table = last_fold_results['q_table']
+final_actions = last_fold_results['actions'] # Retrieve the stored actions
 states = sorted(final_q_table.keys())
-print(f"{'State':<30} | {' | '.join(f'{action:<20}' for action in ACTION_SCRIPTS[:5])} ...")
-print("-" * (30 + 3 + len(ACTION_SCRIPTS[:5]) * 23))
+print(f"{'State':<30} | {' | '.join(f'{action:<20}' for action in final_actions[:5])} ...")
+print("-" * (30 + 3 + len(final_actions[:5]) * 23))
 for state in states:
     q_values = final_q_table[state]
     q_value_str = ' | '.join(f'{q:.2f}' for q in q_values[:5])
@@ -312,32 +299,21 @@ for state in states:
 
 print("\n--- Generating Visual Comparisons ---")
 
+# Training Rewards Plot
 plt.figure(figsize=(12, 7))
 for i, result in enumerate(kfold_results):
-    plt.plot(result['rewards'], label=f'Fold {i+1} Rewards')
-plt.title('Total Reward per Episode (K-Fold Validation)')
+    plt.plot(result['train_rewards'], label=f'Fold {i+1} Training Rewards')
+plt.title('Total Training Reward per Episode (K-Fold Validation)')
 plt.xlabel('Episode')
 plt.ylabel('Total Reward')
 plt.legend()
 plt.grid(True)
 plt.show()
 
-plt.figure(figsize=(12, 7))
-all_rewards = np.array([res['rewards'] for res in kfold_results])
-avg_rewards = np.mean(all_rewards, axis=0)
-std_rewards = np.std(all_rewards, axis=0)
-plt.plot(avg_rewards, label='Average Reward', color='blue')
-plt.fill_between(range(len(avg_rewards)), avg_rewards - std_rewards, avg_rewards + std_rewards, color='blue', alpha=0.2, label='Standard Deviation')
-plt.title('Average Reward per Episode (with Standard Deviation)')
-plt.xlabel('Episode')
-plt.ylabel('Average Total Reward')
-plt.legend()
-plt.grid(True)
-plt.show()
-
+# Training Malicious Flags Plot
 plt.figure(figsize=(12, 7))
 for i, result in enumerate(kfold_results):
-    plt.plot(result['malicious_flags'], label=f'Fold {i+1} Malicious Detections')
+    plt.plot(result['train_malicious_flags'], label=f'Fold {i+1} Malicious Detections')
 plt.title('Malicious Detections per Episode (K-Fold Validation)')
 plt.xlabel('Episode')
 plt.ylabel('Number of Malicious Detections')
@@ -345,16 +321,26 @@ plt.legend()
 plt.grid(True)
 plt.show()
 
+# Average Test Metrics Plot
+test_rewards = [res['test_reward'] for res in kfold_results]
+test_malicious_rates = [res['test_malicious_rate'] for res in kfold_results]
+
 plt.figure(figsize=(12, 7))
-all_malicious = np.array([res['malicious_flags'] for res in kfold_results])
-avg_malicious = np.mean(all_malicious, axis=0)
-std_malicious = np.std(all_malicious, axis=0)
-plt.plot(avg_malicious, label='Average Malicious Detections', color='red')
-plt.fill_between(range(len(avg_malicious)), avg_malicious - std_malicious, avg_malicious + std_malicious, color='red', alpha=0.2, label='Standard Deviation')
-plt.title('Average Malicious Detections (with Standard Deviation)')
-plt.xlabel('Episode')
-plt.ylabel('Average Malicious Detections')
+plt.bar(range(1, len(test_rewards) + 1), test_rewards, label='Average Test Reward', color='blue')
+plt.title('Average Test Reward per Fold')
+plt.xlabel('Fold')
+plt.ylabel('Average Reward')
+plt.xticks(range(1, len(test_rewards) + 1))
 plt.legend()
-plt.grid(True)
+plt.grid(axis='y')
 plt.show()
 
+plt.figure(figsize=(12, 7))
+plt.bar(range(1, len(test_malicious_rates) + 1), test_malicious_rates, label='Average Test Malicious Rate', color='red')
+plt.title('Average Malicious Detections Rate per Fold')
+plt.xlabel('Fold')
+plt.ylabel('Malicious Rate')
+plt.xticks(range(1, len(test_malicious_rates) + 1))
+plt.legend()
+plt.grid(axis='y')
+plt.show()
