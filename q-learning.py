@@ -14,23 +14,7 @@ try:
         raise ValueError("One or more required components are not available.")
 except (NameError, ValueError) as e:
     print(f"Warning: Could not access classifier model or malicious log from Component 1. {e}. Using placeholders.")
-    class DummyKMeans:
-        def __init__(self, n_features_in=175):
-            self.n_features_in_ = n_features_in
-        def predict(self, x):
-            means = np.mean(x, axis=1)
-            return (means > 40).astype(int)
-    class DummyClassifier:
-        def __init__(self, n_features_in=176):
-            self.n_features_in_ = n_features_in
-        def predict_proba(self, x):
-            mean_val = np.mean(x[:, :-1])
-            if mean_val > 50:
-                return np.array([[0.1, 0.9]])
-            return np.array([[0.8, 0.2]])
-    kmeans_model = DummyKMeans()
-    trained_classifier_model = DummyClassifier()
-    selected_malicious_log = np.random.randint(0, 150, size=175)
+
 if selected_malicious_log is None or not hasattr(trained_classifier_model, 'predict_proba') or not hasattr(kmeans_model, 'predict'):
     print("Cannot run without a malicious log and models. Exiting.")
     sys.exit()
